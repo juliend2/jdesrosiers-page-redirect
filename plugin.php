@@ -37,7 +37,7 @@ function jdpr_redirected_page_id() {
     'post_status' => 'publish',
   );
   $pages = get_pages($get_posts_conditions);
-  $html = '<p><label for="'. JDPR_POST_META .'"><strong>'. __('Choose the destination page to redirect', 'jdpr') .'</strong></label></p>';
+  $html = '<p><label for="'. JDPR_POST_META .'"><strong>'. __('Redirect this page to:', 'jdpr') .'</strong></label></p>';
   $html .= '<p><select name="_'. JDPR_POST_META .'" id="'. JDPR_POST_META .'">';
   $html .= '<option value="">'. __('[Select a page]', 'jdpr') .'</option>';
   foreach ($pages as $p) {
