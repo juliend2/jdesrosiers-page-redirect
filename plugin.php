@@ -14,7 +14,7 @@ define('JDPR_POST_META', 'jdpr_redirected_page_id');
 // Meta box
 // -----------------------------------------------------------------
 
-function jdpr_add_language_metaboxe() {
+function jdpr_add_redirect_metabox() {
   add_meta_box('jdpr_redirected_page_id', __('Page Redirect', 'jdpr'), 'jdpr_redirected_page_id', 'page', 'normal', 'default');
 }
 
@@ -35,7 +35,6 @@ function jdpr_redirected_page_id() {
     'order' => 'ASC',
     'post_type' => 'page',
     'post_status' => 'publish',
-    'exclude' => $post->ID
   );
   $pages = get_pages($get_posts_conditions);
   $html = '<p><label for="'. JDPR_POST_META .'"><strong>'. __('Choose the destination page to redirect', 'jdpr') .'</strong></label></p>';
@@ -55,9 +54,6 @@ function jdpr_redirected_page_id() {
 
 // Save the metabox data
 function jdpr_save_post_meta($post_id, $post) {
-  global $jdpr_post_types;
-  // if we're not in a jdpr-enabled post type, skip.
-  if (in_array($post->post_type, $jdpr_post_types)) return $post;
   // verify this came from our screen and with proper authorization,
   // because save_post can be triggered at other times
   if (empty($_POST['_'.JDPR_POST_META]) || empty($_POST[JDPR_NONCE]) || !wp_verify_nonce($_POST[JDPR_NONCE], plugin_basename(__FILE__)) ) {
@@ -79,4 +75,24 @@ function jdpr_save_post_meta($post_id, $post) {
   }
 }
 
+// Redirect
+// -----------------------------------------------------------------
 
+function jdpr_redirect() {
+  if (is_admin()) return false;
+  global $query_string;
+  $redirected_page_id = get_post_meta(get_the_ID(), '_'.JDPR_POST_META, true);
+  if (!empty($redirected_page_id)) {
+    $permalink = get_permalink($redirected_page_id);
+    if (!empty($permalink)) {
+      echo '<meta http-equiv="refresh" content="0; URL='.$permalink.'" />';
+    }
+  }
+}
+
+// Meta box:
+add_action('admin_init', 'jdpr_add_redirect_metabox');
+add_action('save_post', 'jdpr_save_post_meta', 1, 2);
+
+// Redirect:
+add_action('wp_head', 'jdpr_redirect');
